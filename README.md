@@ -1,3 +1,6 @@
-# Half-Half-Life 3
+# PICO8 network
 
-FPS tech demo on pico-8
+Multiplayer over TCP network using pico8 serial.
+
+Work in progress - not functional
+
