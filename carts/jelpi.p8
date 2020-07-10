@@ -742,13 +742,18 @@ _u=_update
 function _update()
   -- send button states
   for i=0,4 do
-    poke(0x4300,btn(i) and 1 or 0)
+    poke(0x430f+i,btn(i) and 1 or 0)
   end
-  serial(0x805,0x4300,5)
-  -- avoid ghost
-  memset(0x4300,0,5)
-  -- receives button states
-  if(_mode=="client") serial(0x804,0x4300,5)
+  if _mode=="client" then
+    -- receives button states
+    serial(0x804,0x4300,5)    
+    -- serial(0x805,0x430f,5)
+  else
+    serial(0x805,0x430f,5)
+    -- receives button states
+    -- serial(0x804,0x4300,5)
+  end
+
   -- run normal update
   _u()
 end
