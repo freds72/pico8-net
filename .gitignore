@@ -1,0 +1,8 @@
+log.txt
+config.txt
+/backup/
+/bbs/
+/carts/demos
+/cdata
+*.blend1
+sdl_controllers.txt
