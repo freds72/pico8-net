@@ -729,7 +729,6 @@ end
 
 _btn=btn
 function btn(k,id)
-  assert(false,"mode:".._mode)
   id=id or 0
   if _mode=="client" then
     if(id==1) return _btn(k)
@@ -746,10 +745,18 @@ function _update()
     poke(0x4300,btn(i) and 1 or 0)
   end
   serial(0x805,0x4300,5)
+  -- avoid ghost
+  memset(0x4300,0,5)
   -- receives button states
-  if(stat(6)=="client") serial(0x804,0x4300,5)
+  if(_mode=="client") serial(0x804,0x4300,5)
   -- run normal update
   _u()
+end
+
+_d=_draw
+function _draw()
+  _d()
+  print("mode:".._mode,60,2,7)
 end
 
 
