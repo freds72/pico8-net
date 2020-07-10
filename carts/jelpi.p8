@@ -747,11 +747,11 @@ function _update()
   if _mode=="client" then
     -- receives button states
     serial(0x804,0x4300,5)    
-    -- serial(0x805,0x430f,5)
+    --serial(0x805,0x430f,5)
   else
     serial(0x805,0x430f,5)
     -- receives button states
-    -- serial(0x804,0x4300,5)
+    --serial(0x804,0x4300,5)
   end
 
   -- run normal update

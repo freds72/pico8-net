@@ -5,7 +5,7 @@ const path = require('path');
 var args = process.argv.slice(2);
 
 // start server
-const server = net.createServer((c) => {
+const server = net.createServer((client) => {
   // 'connection' listener.
   console.log('client connected');
 
@@ -19,19 +19,29 @@ const server = net.createServer((c) => {
     console.error(`[PICO8] error: ${data}`);
   });
 
+  pico8.stdout.on('data',(data) => {
+    console.log('-->');
+    client.write(data);
+  });
+
+  client.on('data',(data) => {
+    console.log('<--');
+    pico8.stdin.write(data);
+  });
+  
   pico8.on('close', (code) => {
     console.log(`PICO8 process exited with code ${code}`);
     server.close();
   });
 
-  c.on('end', () => {
+  client.on('end', () => {
     console.log('client disconnected');
   });
 
   // connect pico to remote client
-  pico8.stdout.pipe(c);
+  //pico8.stdout.pipe(client);
   // connect pico to incoming data
-  // c.pipe(pico8.stdin);
+  //client.pipe(pico8.stdin);
 });
 server.on('error', (err) => {
   throw err;
