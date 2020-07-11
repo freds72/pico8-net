@@ -719,18 +719,19 @@ end
 
 
 -->8
--- net code
-_i=_init
-_mode="server"
+-- net code @freds72
+-- note: must after cart normal code
+local _i,_u,_btn=_init,_update,btn
+local _mode="server"
 function _init()
   _mode=stat(6)
   -- notify server we are ready
   serial(0x805,0x4300,1)
+  -- flush serial
   flip()
   _i()
 end
 
-_btn=btn
 function btn(k,id)
   id=id or 0
   if _mode=="client" then
@@ -741,7 +742,6 @@ function btn(k,id)
   return peek(0x4300+k)==1
 end
 
-_u=_update
 function _update()
   -- collects button states
   for i=0,4 do
@@ -757,13 +757,15 @@ function _update()
   serial(0x805,0x430f,5)
 end
 
-_d=_draw
+--[[
+-- debug purposes only
+local _d=_draw
 function _draw()
   _d()
-  print("mode:".._mode,50,2,7)
-  print("btn:"..tostr(peek4(0x430f),true),50,8,7)
+  print("mode:".._mode,40,2,7)
+  print("btn:"..tostr(peek4(0x430f),true),40,8,7)
 end
-
+]]
 
 
 

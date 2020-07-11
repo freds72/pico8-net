@@ -3,16 +3,21 @@ const net = require('net');
 const path = require('path');
 
 var args = process.argv.slice(2);
+var host = args[0];
+var port = parseInt(args[1]);
+args = args.slice(2);
 
-const client = net.createConnection({ port: 8124 }, () => {
+const client = net.createConnection({ 
+  host: host,
+  port: port }, () => {
   // 'connect' listener.
-  console.log('connected to server!');  
+  console.log(`Connected to ${host}:${port}`);  
 
   // spawns pico8
   // args 0: exe location
   // args 1: home
   // args 2: cart name
-  const pico8 = spawn(args[0], ['-home',args[1],'-p','client',path.join(args[1],'carts',args[2])]);
+  const pico8 = spawn(args[0], ['-home',args[1],'-p','client','-run',path.join(args[1],'carts',args[2])]);
 
   pico8.stderr.on('data', (data) => {
     console.error(`[PICO8] error: ${data}`);
@@ -34,5 +39,5 @@ const client = net.createConnection({ port: 8124 }, () => {
 });
 
 client.on('end', () => {
-  console.log('disconnected from server');
+  console.log('Disconnected from server');
 });

@@ -3,7 +3,10 @@ const net = require('net');
 const path = require('path');
 
 var args = process.argv.slice(2);
+var port = parseInt(args[0]);
+args = args.slice(1);
 
+// keeps track of who's connected
 var states = {
   server_ready: false,
   server_state: null,
@@ -20,7 +23,7 @@ const server = net.createServer((client) => {
   // args 0: exe location
   // args 1: home
   // args 2: cart name
-  const pico8 = spawn(args[0], ['-home',args[1],'-p','server',path.join(args[1],'carts',args[2])]);
+  const pico8 = spawn(args[0], ['-home',args[1],'-p','server','-run',path.join(args[1],'carts',args[2])]);
 
   pico8.stderr.on('data', (data) => {
     console.error(`[PICO8] error: ${data}`);
@@ -74,15 +77,10 @@ const server = net.createServer((client) => {
   client.on('end', () => {
     console.log('client disconnected');
   });
-
-  // connect pico to remote client
-  //pico8.stdout.pipe(client);
-  // connect pico to incoming data
-  //client.pipe(pico8.stdin);
 });
 server.on('error', (err) => {
   throw err;
 });
-server.listen(8124, () => {
-  console.log('Server bound\nStarting PICO8...');
+server.listen(port, () => {
+  console.log(`Server bound to: ${port}`);
 });
