@@ -724,6 +724,9 @@ _i=_init
 _mode="server"
 function _init()
   _mode=stat(6)
+  -- notify server we are ready
+  serial(0x805,0x4300,1)
+  flip()
   _i()
 end
 
@@ -740,28 +743,25 @@ end
 
 _u=_update
 function _update()
-  -- send button states
+  -- collects button states
   for i=0,4 do
-    poke(0x430f+i,btn(i) and 1 or 0)
+    poke(0x430f+i,_btn(i) and 1 or 0)
   end
-  if _mode=="client" then
-    -- receives button states
-    serial(0x804,0x4300,5)    
-    --serial(0x805,0x430f,5)
-  else
-    serial(0x805,0x430f,5)
-    -- receives button states
-    --serial(0x804,0x4300,5)
-  end
+  -- receives button states
+  serial(0x804,0x4300,5)    
 
   -- run normal update
   _u()
+
+  -- pushes "new" state (flush is called after update)
+  serial(0x805,0x430f,5)
 end
 
 _d=_draw
 function _draw()
   _d()
-  print("mode:".._mode,60,2,7)
+  print("mode:".._mode,50,2,7)
+  print("btn:"..tostr(peek4(0x430f),true),50,8,7)
 end
 
 

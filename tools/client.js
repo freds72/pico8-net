@@ -14,23 +14,13 @@ const client = net.createConnection({ port: 8124 }, () => {
   // args 2: cart name
   const pico8 = spawn(args[0], ['-home',args[1],'-p','client',path.join(args[1],'carts',args[2])]);
 
-  pico8.stdout.on('data',(data) => {
-    console.log('-->');
-    client.write(data);
-  });
-
-  client.on('data',(data) => {
-    console.log('<--');
-    pico8.stdin.write(data);
-  });
-
   pico8.stderr.on('data', (data) => {
     console.error(`[PICO8] error: ${data}`);
   });
 
   pico8.on('close', (code) => {
     console.log(`PICO8 process exited with code ${code}`);
-    server.close();
+    client.end();
   });
 
   client.on('end', () => {
@@ -38,9 +28,9 @@ const client = net.createConnection({ port: 8124 }, () => {
   });
 
   // connect pico to remote client
-  //pico8.stdout.pipe(client);
+  pico8.stdout.pipe(client);
   // connect pico to incoming data
-  //client.pipe(pico8.stdin);
+  client.pipe(pico8.stdin);
 });
 
 client.on('end', () => {

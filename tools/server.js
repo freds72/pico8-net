@@ -4,6 +4,13 @@ const path = require('path');
 
 var args = process.argv.slice(2);
 
+var states = {
+  server_ready: false,
+  server_state: null,
+  client_ready: false,
+  client_state: null
+};
+
 // start server
 const server = net.createServer((client) => {
   // 'connection' listener.
@@ -20,13 +27,43 @@ const server = net.createServer((client) => {
   });
 
   pico8.stdout.on('data',(data) => {
-    console.log('-->');
-    client.write(data);
+    states.server_state = data;
+    if(!states.server_ready) {
+      states.server_ready = true;
+      // initial data is garbage (for now)
+      states.server_state = null;
+      console.log("PICO ready");
+    }
+    // we received something
+    // must send something to unlock message pump
+    var client_state = states.client_state;
+    if(!client_state) {
+      client_state = Buffer.alloc(5);
+    }
+
+    pico8.stdin.write(client_state);
+    states.client_state = null;
   });
 
   client.on('data',(data) => {
-    console.log('<--');
-    pico8.stdin.write(data);
+    states.client_state = data;
+    if(!states.client_ready) {
+      states.client_ready = true;
+      // initial data is garbage (for now)
+      states.client_state = null;
+      console.log("PICO (remote) ready");
+    }
+
+    // we received something
+    // must send something to unlock message pump
+    var server_state = states.server_state;
+    if(!server_state) {
+      server_state = Buffer.alloc(5);
+    }
+
+    client.write(server_state);
+    // clear after send
+    states.server_state = null;
   });
   
   pico8.on('close', (code) => {
